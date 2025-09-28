@@ -1,0 +1,20 @@
+{
+  "name": "auth-notes-app",
+  "version": "1.0.0",
+  "description": "Full-stack authentication and notes application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd auth-notes-client && npm run dev",
+    "dev:server": "cd auth-notes-server && npm run dev",
+    "build": "npm run build:server && npm run build:client",
+    "build:client": "cd auth-notes-client && npm run build",
+    "build:server": "cd auth-notes-server && npm run build",
+    "start": "npm run start:server",
+    "start:server": "cd auth-notes-server && npm start",
+    "install:all": "npm install && cd auth-notes-client && npm install && cd ../auth-notes-server && npm install",
+    "setup": "npm run install:all"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
