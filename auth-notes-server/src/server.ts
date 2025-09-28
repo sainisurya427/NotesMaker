@@ -18,26 +18,19 @@ let nextUserId = 1;
 let nextNoteId = 1;
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: any, res: any) => {
   res.json({ 
     message: 'Backend server is running!', 
     timestamp: new Date().toISOString(),
     status: 'OK',
-    mode: 'DEMO (No MongoDB required)'
+    mode: 'PRODUCTION'
   });
 });
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'API is working correctly!' });
-});
-
 // Signup endpoint
-app.post('/api/auth/signup', (req, res) => {
+app.post('/api/auth/signup', (req: any, res: any) => {
   try {
     const { name, email, password, dateOfBirth } = req.body;
-    
-    console.log('Signup request:', { name, email, dateOfBirth });
     
     // Check if user already exists
     const existingUser = users.find(user => user.email === email);
@@ -79,11 +72,9 @@ app.post('/api/auth/signup', (req, res) => {
 });
 
 // Login endpoint
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', (req: any, res: any) => {
   try {
     const { email, password } = req.body;
-    
-    console.log('Login request:', { email });
     
     // Find user
     const user = users.find(user => user.email === email);
@@ -111,43 +102,8 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
-// Google auth endpoint (demo)
-app.post('/api/auth/google', (req, res) => {
-  try {
-    const { token } = req.body;
-    
-    console.log('Google auth request');
-    
-    // Generate demo user for Google auth
-    const demoUser = {
-      id: nextUserId++,
-      name: 'Google User',
-      email: 'google.user@example.com',
-      createdAt: new Date().toISOString()
-    };
-    
-    users.push(demoUser);
-    
-    const jwtToken = 'google-demo-token-' + Math.random().toString(36).substr(2, 9);
-    
-    res.json({
-      message: 'Google authentication successful',
-      token: jwtToken,
-      user: {
-        id: demoUser.id,
-        name: demoUser.name,
-        email: demoUser.email
-      }
-    });
-    
-  } catch (error) {
-    console.error('Google auth error:', error);
-    res.status(500).json({ message: 'Server error during Google authentication' });
-  }
-});
-
 // Get user profile
-app.get('/api/auth/profile', (req, res) => {
+app.get('/api/auth/profile', (req: any, res: any) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
@@ -177,7 +133,7 @@ app.get('/api/auth/profile', (req, res) => {
 });
 
 // Notes endpoints
-app.get('/api/notes', (req, res) => {
+app.get('/api/notes', (req: any, res: any) => {
   try {
     res.json(notes);
   } catch (error) {
@@ -186,7 +142,7 @@ app.get('/api/notes', (req, res) => {
   }
 });
 
-app.post('/api/notes', (req, res) => {
+app.post('/api/notes', (req: any, res: any) => {
   try {
     const { title, content } = req.body;
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -214,15 +170,10 @@ app.post('/api/notes', (req, res) => {
   }
 });
 
-app.put('/api/notes/:id', (req, res) => {
+app.put('/api/notes/:id', (req: any, res: any) => {
   try {
     const { id } = req.params;
     const { title, content } = req.body;
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
     
     const noteIndex = notes.findIndex(note => note._id == id);
     if (noteIndex === -1) {
@@ -244,14 +195,9 @@ app.put('/api/notes/:id', (req, res) => {
   }
 });
 
-app.delete('/api/notes/:id', (req, res) => {
+app.delete('/api/notes/:id', (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
     
     const noteIndex = notes.findIndex(note => note._id == id);
     if (noteIndex === -1) {
@@ -270,5 +216,5 @@ app.delete('/api/notes/:id', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`); 
+  console.log(`Production server running on port ${PORT}`);
 });
