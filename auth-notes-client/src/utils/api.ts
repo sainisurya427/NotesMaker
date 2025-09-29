@@ -1,7 +1,11 @@
 import axios from 'axios';
 import type { AuthResponse, User, Note } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Auto-detect API URL based on environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000/api' 
+    : '/api');
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -43,7 +47,10 @@ export const authAPI = {
     return response.data;
   },
 
-  login: async (credentials: { email: string; password: string }): Promise<AuthResponse> => {
+  login: async (credentials: { 
+    email: string; 
+    password: string; 
+  }): Promise<AuthResponse> => {
     const response = await api.post('/auth/login', credentials);
     return response.data;
   },
@@ -65,12 +72,18 @@ export const notesAPI = {
     return response.data;
   },
 
-  createNote: async (noteData: { title: string; content: string }): Promise<Note> => {
+  createNote: async (noteData: { 
+    title: string; 
+    content: string; 
+  }): Promise<Note> => {
     const response = await api.post('/notes', noteData);
     return response.data;
   },
 
-  updateNote: async (id: string, noteData: { title: string; content: string }): Promise<Note> => {
+  updateNote: async (id: string, noteData: { 
+    title: string; 
+    content: string; 
+  }): Promise<Note> => {
     const response = await api.put(`/notes/${id}`, noteData);
     return response.data;
   },

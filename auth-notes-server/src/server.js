@@ -1,28 +1,43 @@
-// Simple production server - No TypeScript errors
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// CORS configuration
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? false // Same origin in production
+    : ['http://localhost:3000', 'http://127.0.0.1:3000'], // Development
+  credentials: true
+}));
+
 app.use(express.json());
 
-// In-memory storage (no database required)
-let users = [];
-let notes = [];
+// Serve static files from client dist folder
+app.use(express.static(path.join(__dirname, '../../client/dist')));
+
+// In-memory storage
+const users = [];
+const notes = [];
 let nextUserId = 1;
 let nextNoteId = 1;
+
+// API Routes
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
-    message: 'Backend server is running!', 
+    message: 'Full-stack server is running!', 
     timestamp: new Date().toISOString(),
     status: 'OK',
-    mode: 'PRODUCTION'
+    mode: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -30,6 +45,8 @@ app.get('/api/health', (req, res) => {
 app.post('/api/auth/signup', (req, res) => {
   try {
     const { name, email, password, dateOfBirth } = req.body;
+    
+    console.log('Signup request:', { name, email });
     
     // Check if user already exists
     const existingUser = users.find(user => user.email === email);
@@ -50,8 +67,8 @@ app.post('/api/auth/signup', (req, res) => {
     
     users.push(newUser);
     
-    // Generate demo token
-    const token = 'demo-jwt-token-' + Math.random().toString(36).substr(2, 9);
+    // Generate token
+    const token = 'jwt-token-' + Math.random().toString(36).substr(2, 9);
     
     res.status(201).json({
       message: 'User created successfully',
@@ -75,14 +92,16 @@ app.post('/api/auth/login', (req, res) => {
   try {
     const { email, password } = req.body;
     
+    console.log('Login request:', { email });
+    
     // Find user
     const user = users.find(user => user.email === email);
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     
-    // Generate demo token
-    const token = 'demo-jwt-token-' + Math.random().toString(36).substr(2, 9);
+    // Generate token
+    const token = 'jwt-token-' + Math.random().toString(36).substr(2, 9);
     
     res.json({
       message: 'Login successful',
@@ -105,6 +124,8 @@ app.post('/api/auth/login', (req, res) => {
 app.post('/api/auth/google', (req, res) => {
   try {
     const { token } = req.body;
+    
+    console.log('Google auth request');
     
     // Generate demo user for Google auth
     const demoUser = {
@@ -143,7 +164,7 @@ app.get('/api/auth/profile', (req, res) => {
       return res.status(401).json({ message: 'No token provided' });
     }
     
-    // For demo, just return the first user
+    // Return first user for demo
     const user = users[0];
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -187,7 +208,7 @@ app.post('/api/notes', (req, res) => {
       _id: nextNoteId++,
       title,
       content,
-      user: 'demo-user-id',
+      user: 'user-id',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -246,7 +267,14 @@ app.delete('/api/notes/:id', (req, res) => {
   }
 });
 
+// Serve React app for all other routes (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
-  console.log(`Production server running on port ${PORT}`);
+  console.log(`Full-stack server running on port ${PORT}`); 
+  console.log(`Frontend: http://localhost:${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
