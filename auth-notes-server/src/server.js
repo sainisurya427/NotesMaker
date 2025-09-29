@@ -10,18 +10,12 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? false // Same origin in production
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'], // Development
-  credentials: true
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// Serve static files from client dist folder
-app.use(express.static(path.join(__dirname, '../../client/dist')));
+// Serve static files from client dist folder (Correct Path)
+app.use(express.static(path.join(__dirname, '../../auth-notes-client/dist')));
 
 // In-memory storage
 const users = [];
@@ -36,8 +30,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     message: 'Full-stack server is running!', 
     timestamp: new Date().toISOString(),
-    status: 'OK',
-    mode: process.env.NODE_ENV || 'development'
+    status: 'OK'
   });
 });
 
@@ -45,8 +38,6 @@ app.get('/api/health', (req, res) => {
 app.post('/api/auth/signup', (req, res) => {
   try {
     const { name, email, password, dateOfBirth } = req.body;
-    
-    console.log('Signup request:', { name, email });
     
     // Check if user already exists
     const existingUser = users.find(user => user.email === email);
@@ -92,8 +83,6 @@ app.post('/api/auth/login', (req, res) => {
   try {
     const { email, password } = req.body;
     
-    console.log('Login request:', { email });
-    
     // Find user
     const user = users.find(user => user.email === email);
     if (!user) {
@@ -117,41 +106,6 @@ app.post('/api/auth/login', (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error during login' });
-  }
-});
-
-// Google auth endpoint (demo)
-app.post('/api/auth/google', (req, res) => {
-  try {
-    const { token } = req.body;
-    
-    console.log('Google auth request');
-    
-    // Generate demo user for Google auth
-    const demoUser = {
-      id: nextUserId++,
-      name: 'Google User',
-      email: 'google.user@example.com',
-      createdAt: new Date().toISOString()
-    };
-    
-    users.push(demoUser);
-    
-    const jwtToken = 'google-demo-token-' + Math.random().toString(36).substr(2, 9);
-    
-    res.json({
-      message: 'Google authentication successful',
-      token: jwtToken,
-      user: {
-        id: demoUser.id,
-        name: demoUser.name,
-        email: demoUser.email
-      }
-    });
-    
-  } catch (error) {
-    console.error('Google auth error:', error);
-    res.status(500).json({ message: 'Server error during Google authentication' });
   }
 });
 
@@ -267,14 +221,13 @@ app.delete('/api/notes/:id', (req, res) => {
   }
 });
 
-// Serve React app for all other routes (SPA support)
+// Serve React app for all other routes (Correct Path)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../../auth-notes-client/dist/index.html'));
 });
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Full-stack server running on port ${PORT}`); 
   console.log(`Frontend: http://localhost:${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

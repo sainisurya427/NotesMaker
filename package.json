@@ -4,15 +4,15 @@
   "description": "Full-stack authentication and notes application",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:client": "cd client && npm run dev",
-    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd auth-notes-client && npm run dev",
+    "dev:server": "cd auth-notes-server && npm run dev",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "cd client && npm install && npm run build",
-    "build:server": "cd server && npm install",
-    "start": "node server/src/server.js",
-    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
-    "render-build": "cd client && npm install && npm run build && cd ../server && npm install",
-    "render-start": "node server/src/server.js"
+    "build:client": "cd auth-notes-client && npm install && npm run build",
+    "build:server": "cd auth-notes-server && npm install",
+    "start": "node auth-notes-server/src/server.js",
+    "install:all": "npm install && cd auth-notes-client && npm install && cd ../auth-notes-server && npm install",
+    "render-build": "cd auth-notes-client && npm install && npm run build && cd ../auth-notes-server && npm install",
+    "render-start": "node auth-notes-server/src/server.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
